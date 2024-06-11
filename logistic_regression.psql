@@ -1,4 +1,28 @@
 
+create or replace function dot(in x float[][], in y float[])
+returns float[]
+language plpgsql stable
+as $$
+    declare
+        output float[];
+        i int;
+        j int;
+        aggregate float;
+    begin
+        for i in 1..array_length(x, 1) loop
+            aggregate = 0;
+            for j in 1..array_length(x, 2) loop
+                aggregate := aggregate + x[i][j] * y[j];
+                end loop;
+            output := array_append(output, aggregate);
+        end loop;
+
+        return output;
+    end;
+    $$;
+
+
+
 create or replace function sigmoid(in x float)
     returns float
     language plpgsql stable
@@ -35,7 +59,7 @@ begin
         execute format('select sigmoid(x) from %s', X) into pred;
         execute format('select pred - y from %s, %s', unnest(pred), X) into dz;
 
-        dw = (1 / n_samples) *
+--         dw = (1 / n_samples) *
 
     end loop;
 
@@ -45,8 +69,3 @@ $$;
 
 
 select * from bin_log_reg('logistic_table');
-
--- select *, row_number() over () as id from logistic_table;
--- select *, row_number() over () as id from logistic_table
-
--- select x - x0 as test from logistic_table, linear_tb;
