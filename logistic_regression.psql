@@ -112,4 +112,20 @@ begin
     return weights;
 end
 $$;
+
+create or replace function predict(in X float[][], in weights float[])
+returns float[]
+language plpgsql stable
+as $$
+    declare
+        output float[];
+        bias float = 0;
+    begin
+        output := ARRAY(select sigmoid(weighed_x + bias) from dot(X, weights) as weighed_x);
+        return output;
+    end;
+$$;
+
+
+
 select bin_log_reg(ARRAY[ARRAY[1.0, 1.0], ARRAY[0.0, 1.0]]::float[][], ARRAY[1.0, 0.0]::float[]);
